@@ -1,24 +1,74 @@
-import React from "react";
+import React, { Component } from "react";
+import TodoForm from "./TodoForm";
+import TodoList from "./TodoList";
+import PropTypes from "prop-types";
 
-//include images into your bundle
-import rigoImage from "../../img/rigo-baby.jpg";
+import WebFont from "webfontloader";
 
-//create your first component
-export function Home() {
-	return (
-		<div className="text-center mt-5">
-			<h1>Hello Rigo!</h1>
-			<p>
-				<img src={rigoImage} />
-			</p>
-			<a href="#" className="btn btn-success">
-				If you see this green button... bootstrap is working
-			</a>
-			<p>
-				Made by{" "}
-				<a href="http://www.4geeksacademy.com">4Geeks Academy</a>, with
-				love!
-			</p>
-		</div>
-	);
+WebFont.load({
+	google: {
+		families: ["Titillium Web:300,400,700", "sans-serif"]
+	}
+});
+
+class App extends Component {
+	constructor(props) {
+		super(props);
+		this.state = {
+			userInput: "",
+			todos: []
+		};
+		this.handleChange = this.handleChange.bind(this);
+		this.handleSubmit = this.handleSubmit.bind(this);
+		this.createTodo = this.createTodo.bind(this);
+		this.deleteTodo = this.deleteTodo.bind(this);
+	}
+
+	handleChange(event) {
+		const { value } = event.target;
+		this.setState({ userInput: value });
+	}
+
+	handleSubmit(event) {
+		event.preventDefault();
+		this.createTodo();
+		this.setState({ userInput: "" });
+		event.target.reset();
+	}
+
+	createTodo() {
+		const copyOfTodosState = [...this.state.todos];
+		const newTodo = {};
+		const timestamp = Date.now();
+		newTodo.id = `task-${timestamp}`;
+		newTodo.task = this.state.userInput;
+		copyOfTodosState.push(newTodo);
+		this.setState({ todos: copyOfTodosState });
+	}
+	deleteTodo(index) {
+		const copyOfTodosState = [...this.state.todos];
+		const indexToDelete = copyOfTodosState.findIndex(
+			item => item.id === index
+		);
+		copyOfTodosState.splice(indexToDelete, 1);
+		this.setState({ todos: copyOfTodosState });
+	}
+	render() {
+		return (
+			<div className="container wrapper">
+				<h1>TO DO LIST</h1>
+				<TodoForm
+					handleChange={this.handleChange}
+					handleSubmit={this.handleSubmit}
+					userInput={this.state.userInput}
+				/>
+				<TodoList
+					todos={this.state.todos}
+					deleteTodo={this.deleteTodo}
+				/>
+			</div>
+		);
+	}
 }
+
+export default App;
